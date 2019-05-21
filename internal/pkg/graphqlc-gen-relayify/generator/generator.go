@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"path"
 	"strings"
 
 	"github.com/samlitowitz/graphqlc/pkg/graphqlc"
@@ -15,6 +16,7 @@ type Generator struct {
 	Param map[string]string // Command-line parameters
 
 	config       *generator.Config
+	typeSuffix   string // Append type suffix for rename
 	genFileNames map[string]bool
 	nodeifyTypes map[string]bool
 }
@@ -22,6 +24,7 @@ type Generator struct {
 func New() *Generator {
 	g := new(Generator)
 	g.Generator = echo.New()
+	g.Generator.FnRenameFile = g.graphqlRelayifyFileName
 	return g
 }
 
@@ -43,10 +46,17 @@ func (g *Generator) CommandLineArguments(parameter string) {
 				g.Error(err)
 			}
 			g.config = config
+		case "typeSuffix":
+			if v != "" {
+				g.typeSuffix = v
+			}
 		}
 	}
 	if g.config == nil {
 		g.Fail("a configuration must be provided")
+	}
+	if g.typeSuffix == "" {
+		g.typeSuffix = ".relayified.graphql"
 	}
 }
 
@@ -214,4 +224,13 @@ func wrapExistingQueryType(fd *graphqlc.FileDescriptorGraphql) {
 			return
 		}
 	}
+}
+
+func (g *Generator) graphqlRelayifyFileName(name string) string {
+	if ext := path.Ext(name); ext == ".graphql" {
+		name = name[:len(name)-len(ext)]
+	}
+	name += g.typeSuffix
+
+	return name
 }

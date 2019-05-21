@@ -4,6 +4,7 @@
 This is a code generator designed to work with [graphqlc](https://github.com/samlitowitz/graphqlc).
 
 Generate a GraphQL schema from a GraphQL schema with added Relay Node interfaces and Connection types for the specified types.
+See the [examples/](https://github.com/samlitowitz/graphqlc-gen-relayify/tree/master/examples) directory for more... examples.
 
 ```graphql
 # input.graphql
@@ -43,7 +44,11 @@ nodeify:
   - User
 ```
 
-`graphqlc --relayify_out=config=relayify.yml:. schema.graphql
+## Parameters
+  * config, required, name of relayify configuration file as defined directly above,
+  * typeSuffix, optional, default = .relayified.graphql, suffix for output file
+
+`graphqlc --relayify_out=config=relayify.yml:. schema.graphql`
 
 # In the works!
   * Create *Connection and *Edge types for specified types

@@ -4,6 +4,8 @@ github.com/graphql-go/graphql v0.7.8 h1:769CR/2JNAhLG9+aa8pfLkKdR0H+r5lsQqling5W
 github.com/graphql-go/graphql v0.7.8/go.mod h1:k6yrAYQaSP59DC5UVxbgxESlmVyojThKdORUqGDGmrI=
 github.com/samlitowitz/graphqlc v0.0.0-20190520115718-77722d336325 h1:vWYwwMc6E/6aBr5hACID6bhUGQAtw63Gjn11QMcpCXU=
 github.com/samlitowitz/graphqlc v0.0.0-20190520115718-77722d336325/go.mod h1:rtm17wzw16eEoDqZx2DehLf2d1dZaay8tDU1l4Gtd3Y=
+github.com/samlitowitz/graphqlc v0.0.0-20190521135256-51ec97f4de9e h1:Ebr9xR/QuU8Kz37onw0moam3jtaf65nBIyE030a4jRE=
+github.com/samlitowitz/graphqlc v0.0.0-20190521135256-51ec97f4de9e/go.mod h1:rtm17wzw16eEoDqZx2DehLf2d1dZaay8tDU1l4Gtd3Y=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

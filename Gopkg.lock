@@ -28,7 +28,7 @@
     "pkg/graphqlc",
     "pkg/graphqlc/compiler"
   ]
-  revision = "77722d33632507bfbba78a10010244d38cb70621"
+  revision = "51ec97f4de9e744a0312799fbb680e1fbbcf44d7"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
