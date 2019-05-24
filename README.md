@@ -68,3 +68,29 @@ nodeify:
   * typeSuffix, optional, default = .relayified.graphql, suffix for output file
 
 `graphqlc --relayify_out=config=relayify.yml:. schema.graphql`
+
+
+# Going forward
+  * Cursor type specification
+  
+  ```yaml
+  cursor_type: String
+  ```
+  
+  * Add or overwrite type fields with connection types
+  
+  ```yaml
+  connectify:
+    - type: Todo
+      fields:
+        - type: User
+          field: todos
+        - type: MyQuery
+          field: todos
+          overwrite: true
+          arguments: 
+            # first, after, last, and before are reserved per the Relay specification
+            - name: userId
+              type: ID!
+  ```  
+  
