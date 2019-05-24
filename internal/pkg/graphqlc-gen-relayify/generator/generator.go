@@ -15,10 +15,11 @@ type Generator struct {
 
 	Param map[string]string // Command-line parameters
 
-	config       *generator.Config
-	typeSuffix   string // Append type suffix for rename
-	genFileNames map[string]bool
-	nodeifyTypes map[string]bool
+	config          *generator.Config
+	typeSuffix      string // Append type suffix for rename
+	genFileNames    map[string]bool
+	connectifyTypes map[string]bool
+	nodeifyTypes    map[string]bool
 }
 
 func New() *Generator {
@@ -66,17 +67,53 @@ func (g *Generator) BuildSchemas() {
 		g.genFileNames[n] = true
 	}
 
+	g.connectifyTypes = make(map[string]bool)
 	g.nodeifyTypes = make(map[string]bool)
+
+	for _, typ := range g.config.Connectify {
+		g.connectifyTypes[typ] = true
+	}
+
 	for _, typ := range g.config.Nodeify {
 		g.nodeifyTypes[typ] = true
+	}
+	if len(g.connectifyTypes) > 0 {
+		g.connectify()
 	}
 
 	if len(g.nodeifyTypes) > 0 {
 		g.nodeify()
 	}
+}
 
-	// Create PageInfo type if does not exist
-	// Create *Connection and *Edge for specified types
+func (g *Generator) connectify() {
+	for _, fd := range g.Request.GraphqlFile {
+		if _, ok := g.genFileNames[fd.Name]; !ok {
+			continue
+		}
+		// Create PageInfo type if it does not exist
+		pageInfo := getObjectType(fd.Objects, "PageInfo")
+		if pageInfo == nil {
+			pageInfo = buildPageInfoObjectType()
+			fd.Objects = append(fd.Objects, pageInfo)
+		}
+		// Create *Connection and *Edge for specified types
+		for _, desc := range fd.Objects {
+			if _, ok := g.connectifyTypes[desc.Name]; !ok {
+				continue
+			}
+			edge := getObjectType(fd.Objects, desc.Name+"Edge")
+			if edge == nil {
+				edge = buildEdgeObjectType(desc)
+				fd.Objects = append(fd.Objects, edge)
+			}
+			connection := getObjectType(fd.Objects, desc.Name+"Connection")
+			if connection == nil {
+				connection = buildConnectionObjectType(desc, edge)
+				fd.Objects = append(fd.Objects, connection)
+			}
+		}
+	}
 }
 
 func (g *Generator) nodeify() {
@@ -176,6 +213,112 @@ func buildNodeInterface() *graphqlc.InterfaceTypeDefinitionDescriptorProto {
 	}
 }
 
+func buildEdgeObjectType(desc *graphqlc.ObjectTypeDefinitionDescriptorProto) *graphqlc.ObjectTypeDefinitionDescriptorProto {
+	return &graphqlc.ObjectTypeDefinitionDescriptorProto{
+		Name: desc.Name + "Edge",
+		Fields: []*graphqlc.FieldDefinitionDescriptorProto{
+			&graphqlc.FieldDefinitionDescriptorProto{
+				Name: "node",
+				Type: &graphqlc.TypeDescriptorProto{
+					Type: &graphqlc.TypeDescriptorProto_NamedType{
+						NamedType: &graphqlc.NamedTypeDescriptorProto{
+							Name: desc.Name,
+						},
+					},
+				},
+			},
+			&graphqlc.FieldDefinitionDescriptorProto{
+				Name: "cursor",
+				Type: &graphqlc.TypeDescriptorProto{
+					Type: &graphqlc.TypeDescriptorProto_NonNullType{
+						NonNullType: &graphqlc.NonNullTypeDescriptorProto{
+							Type: &graphqlc.NonNullTypeDescriptorProto_NamedType{
+								NamedType: &graphqlc.NamedTypeDescriptorProto{
+									Name: "String",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func buildConnectionObjectType(desc, edge *graphqlc.ObjectTypeDefinitionDescriptorProto) *graphqlc.ObjectTypeDefinitionDescriptorProto {
+	return &graphqlc.ObjectTypeDefinitionDescriptorProto{
+		Name: desc.Name + "Connection",
+		Fields: []*graphqlc.FieldDefinitionDescriptorProto{
+			&graphqlc.FieldDefinitionDescriptorProto{
+				Name: "edge",
+				Type: &graphqlc.TypeDescriptorProto{
+					Type: &graphqlc.TypeDescriptorProto_ListType{
+						ListType: &graphqlc.ListTypeDescriptorProto{
+							Type: &graphqlc.TypeDescriptorProto{
+								Type: &graphqlc.TypeDescriptorProto_NamedType{
+									NamedType: &graphqlc.NamedTypeDescriptorProto{
+										Name: edge.Name,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&graphqlc.FieldDefinitionDescriptorProto{
+				Name: "PageInfo",
+				Type: &graphqlc.TypeDescriptorProto{
+					Type: &graphqlc.TypeDescriptorProto_NonNullType{
+						NonNullType: &graphqlc.NonNullTypeDescriptorProto{
+							Type: &graphqlc.NonNullTypeDescriptorProto_NamedType{
+								NamedType: &graphqlc.NamedTypeDescriptorProto{
+									Name: "PageInfo",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func buildPageInfoObjectType() *graphqlc.ObjectTypeDefinitionDescriptorProto {
+	return &graphqlc.ObjectTypeDefinitionDescriptorProto{
+		Name: "PageInfo",
+		Fields: []*graphqlc.FieldDefinitionDescriptorProto{
+			&graphqlc.FieldDefinitionDescriptorProto{
+				Name: "hasPreviousPage",
+				Type: &graphqlc.TypeDescriptorProto{
+					Type: &graphqlc.TypeDescriptorProto_NonNullType{
+						NonNullType: &graphqlc.NonNullTypeDescriptorProto{
+							Type: &graphqlc.NonNullTypeDescriptorProto_NamedType{
+								NamedType: &graphqlc.NamedTypeDescriptorProto{
+									Name: "Boolean",
+								},
+							},
+						},
+					},
+				},
+			},
+			&graphqlc.FieldDefinitionDescriptorProto{
+				Name: "hasNextPage",
+				Type: &graphqlc.TypeDescriptorProto{
+					Type: &graphqlc.TypeDescriptorProto_NonNullType{
+						NonNullType: &graphqlc.NonNullTypeDescriptorProto{
+							Type: &graphqlc.NonNullTypeDescriptorProto_NamedType{
+								NamedType: &graphqlc.NamedTypeDescriptorProto{
+									Name: "Boolean",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
 func implementNode(desc *graphqlc.ObjectTypeDefinitionDescriptorProto, node *graphqlc.InterfaceTypeDefinitionDescriptorProto) error {
 	if getInterface(desc.Implements, node.Name) != nil {
 		return nil
@@ -202,6 +345,15 @@ func getFieldDefinitionDescriptorProto(desc *graphqlc.ObjectTypeDefinitionDescri
 }
 
 func getInterface(descs []*graphqlc.InterfaceTypeDefinitionDescriptorProto, name string) *graphqlc.InterfaceTypeDefinitionDescriptorProto {
+	for _, desc := range descs {
+		if desc.Name == name {
+			return desc
+		}
+	}
+	return nil
+}
+
+func getObjectType(descs []*graphqlc.ObjectTypeDefinitionDescriptorProto, name string) *graphqlc.ObjectTypeDefinitionDescriptorProto {
 	for _, desc := range descs {
 		if desc.Name == name {
 			return desc

@@ -9,7 +9,7 @@ See the [examples/](https://github.com/samlitowitz/graphqlc-gen-relayify/tree/ma
 ```graphql
 # input.graphql
 type Query {}
-type A {}
+type AType {}
 ```
 ```graphql
 # output.graphql
@@ -17,10 +17,24 @@ type Query {
     node(id: ID): Node
 }
 
-type A implements Node {
+type AType implements Node {
     id: ID!
 }
 
+type PageInfo {
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+}
+
+type ATypeEdge {
+  node: AType
+  cursor: String!
+}
+
+type ATypeConnection {
+  edge: [ATypeEdge]
+  PageInfo: PageInfo!
+}
 interface Node {
     id: ID!
 }
@@ -37,6 +51,11 @@ Install [graphqlc](https://github.com/samlitowitz/graphqlc).
 # relayify.yaml
 # the file can be named anything, you just have to specify it to the config parameter!
 
+# Create PageInfo type if it does not exist and connectify is not empty
+# Create <TYPE>Connection and <TYPE>Edge types if they do not exist
+connectify:
+  - Todo
+
 # Create Node interface if it does not exist AND nodeify is not empty
 # Implement the Node interface for each type specified in nodeify
 nodeify:
@@ -49,6 +68,3 @@ nodeify:
   * typeSuffix, optional, default = .relayified.graphql, suffix for output file
 
 `graphqlc --relayify_out=config=relayify.yml:. schema.graphql`
-
-# In the works!
-  * Create *Connection and *Edge types for specified types

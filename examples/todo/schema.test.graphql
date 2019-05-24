@@ -31,6 +31,21 @@ type User implements Node {
   id: ID!
 }
 
+type PageInfo {
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+}
+
+type TodoEdge {
+  node: Todo
+  cursor: String!
+}
+
+type TodoConnection {
+  edge: [TodoEdge]
+  PageInfo: PageInfo!
+}
+
 interface Node {
   id: ID!
 }
