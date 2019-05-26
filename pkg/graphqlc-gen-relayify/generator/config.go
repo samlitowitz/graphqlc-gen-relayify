@@ -9,9 +9,20 @@ import (
 type StringList []string
 
 type Config struct {
-	CursorType CursorType `yaml:"cursor_type,omitempty"`
-	Connectify []string   `yaml:"connectify,omitempty"`
-	Nodeify    []string   `yaml:"nodeify,omitempty"`
+	CursorType *CursorType   `yaml:"cursor_type,omitempty"`
+	Connectify []*Connectify `yaml:"connectify,omitempty"`
+	Nodeify    []string      `yaml:"nodeify,omitempty"`
+}
+
+type Connectify struct {
+	Type   string            `yaml:"type,omitempty"`
+	Fields []ConnectifyField `yaml:"fields,omitempty"`
+}
+
+type ConnectifyField struct {
+	Type      string `yaml:"type,omitempty"`
+	Field     string `yaml:"field,omitempty"`
+	Overwrite bool   `yaml:"overwrite,omitempty"`
 }
 
 type CursorType struct {
@@ -26,8 +37,8 @@ func LoadConfig(filename string) (*Config, error) {
 	}
 
 	config := &Config{
-		CursorType: CursorType{},
-		Connectify: []string{},
+		CursorType: &CursorType{},
+		Connectify: []*Connectify{},
 		Nodeify:    []string{},
 	}
 	err = yaml.UnmarshalStrict(data, config)

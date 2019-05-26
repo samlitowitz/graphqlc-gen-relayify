@@ -77,7 +77,7 @@ nodeify:
 
 
 # Going forward 
-  * Add or overwrite type fields with connection types
+  * Add additional arguments to connectify fields
   
   ```yaml
   connectify:
@@ -91,6 +91,7 @@ nodeify:
           arguments: 
             # first, after, last, and before are reserved per the Relay specification
             - name: userId
-              type: ID!
+              nullable: false
+              type: ID
   ```  
   

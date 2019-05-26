@@ -3,7 +3,13 @@ cursor_type:
   nullable: false
 
 connectify:
-  - Todo
+  - type: Todo
+    fields:
+      - type: User
+        field: todos
+      - type: MyQuery
+        field: todos
+        overwrite: true
 
 nodeify:
   - Todo

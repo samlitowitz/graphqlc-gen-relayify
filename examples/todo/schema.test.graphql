@@ -10,7 +10,7 @@ scalar Map
 type MyQuery {
   todo(id: ID!): Todo
   lastTodo: Todo
-  todos: [Todo!]!
+  todos(first: Int, after: String!, last: Int, before: String!): TodoConnection
   node(id: ID!): Node!
 }
 
@@ -28,6 +28,7 @@ type Todo implements Node {
 
 type User implements Node {
   login: String!
+  todos(first: Int, after: String!, last: Int, before: String!): TodoConnection
   id: ID!
 }
 

@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"fmt"
 	"path"
 	"strings"
 
@@ -74,7 +75,7 @@ func (g *Generator) BuildSchemas() {
 	g.nodeifyTypes = make(map[string]bool)
 
 	for _, typ := range g.config.Connectify {
-		g.connectifyTypes[typ] = true
+		g.connectifyTypes[typ.Type] = true
 	}
 
 	for _, typ := range g.config.Nodeify {
@@ -114,6 +115,24 @@ func (g *Generator) connectify() {
 			if connection == nil {
 				connection = buildConnectionObjectType(desc, edge)
 				fd.Objects = append(fd.Objects, connection)
+			}
+		}
+		// Add/overwrite connection fields
+		for _, typ := range g.config.Connectify {
+			for _, field := range typ.Fields {
+				objDesc := getObjectType(fd.Objects, field.Type)
+				if objDesc == nil {
+					g.Fail(fmt.Sprintf("undefined type %q", field.Type))
+				}
+				fieldDesc := getFieldDefinitionDescriptorProto(objDesc, field.Field)
+				if fieldDesc != nil && !field.Overwrite {
+					continue
+				}
+				if fieldDesc == nil {
+					fieldDesc = &graphqlc.FieldDefinitionDescriptorProto{}
+					objDesc.Fields = append(objDesc.Fields, fieldDesc)
+				}
+				buildConnectionField(fieldDesc, g.cursorType, typ.Type+"Connection", field.Field)
 			}
 		}
 	}
@@ -239,6 +258,50 @@ func buildCursorType(typ string, nullable bool) *graphqlc.TypeDescriptorProto {
 			},
 		}
 	}
+}
+
+func buildConnectionField(desc *graphqlc.FieldDefinitionDescriptorProto,
+	cursorType *graphqlc.TypeDescriptorProto,
+	connectionName, fieldName string) {
+
+	desc.Name = fieldName
+	desc.Type = &graphqlc.TypeDescriptorProto{
+		Type: &graphqlc.TypeDescriptorProto_NamedType{
+			NamedType: &graphqlc.NamedTypeDescriptorProto{
+				Name: connectionName,
+			},
+		},
+	}
+	desc.Arguments = []*graphqlc.InputValueDefinitionDescriptorProto{}
+
+	desc.Arguments = append(desc.Arguments, &graphqlc.InputValueDefinitionDescriptorProto{
+		Name: "first",
+		Type: &graphqlc.TypeDescriptorProto{
+			Type: &graphqlc.TypeDescriptorProto_NamedType{
+				NamedType: &graphqlc.NamedTypeDescriptorProto{
+					Name: "Int",
+				},
+			},
+		},
+	})
+	desc.Arguments = append(desc.Arguments, &graphqlc.InputValueDefinitionDescriptorProto{
+		Name: "after",
+		Type: cursorType,
+	})
+	desc.Arguments = append(desc.Arguments, &graphqlc.InputValueDefinitionDescriptorProto{
+		Name: "last",
+		Type: &graphqlc.TypeDescriptorProto{
+			Type: &graphqlc.TypeDescriptorProto_NamedType{
+				NamedType: &graphqlc.NamedTypeDescriptorProto{
+					Name: "Int",
+				},
+			},
+		},
+	})
+	desc.Arguments = append(desc.Arguments, &graphqlc.InputValueDefinitionDescriptorProto{
+		Name: "before",
+		Type: cursorType,
+	})
 }
 
 func buildEdgeObjectType(desc *graphqlc.ObjectTypeDefinitionDescriptorProto, cursorType *graphqlc.TypeDescriptorProto) *graphqlc.ObjectTypeDefinitionDescriptorProto {
