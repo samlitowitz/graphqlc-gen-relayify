@@ -9,8 +9,14 @@ import (
 type StringList []string
 
 type Config struct {
-	Connectify []string `yaml:"connectify,omitempty"`
-	Nodeify    []string `yaml:"nodeify,omitempty"`
+	CursorType CursorType `yaml:"cursor_type,omitempty"`
+	Connectify []string   `yaml:"connectify,omitempty"`
+	Nodeify    []string   `yaml:"nodeify,omitempty"`
+}
+
+type CursorType struct {
+	Type     string `yaml:"type,omitempty"`
+	Nullable bool   `yaml:"nullable,omitempty"`
 }
 
 func LoadConfig(filename string) (*Config, error) {
@@ -20,6 +26,7 @@ func LoadConfig(filename string) (*Config, error) {
 	}
 
 	config := &Config{
+		CursorType: CursorType{},
 		Connectify: []string{},
 		Nodeify:    []string{},
 	}

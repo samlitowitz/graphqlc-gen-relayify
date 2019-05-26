@@ -1,3 +1,7 @@
+cursor_type:
+  type: String
+  nullable: false
+
 connectify:
   - Todo
 

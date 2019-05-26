@@ -20,6 +20,8 @@ type Generator struct {
 	genFileNames    map[string]bool
 	connectifyTypes map[string]bool
 	nodeifyTypes    map[string]bool
+
+	cursorType *graphqlc.TypeDescriptorProto
 }
 
 func New() *Generator {
@@ -59,6 +61,7 @@ func (g *Generator) CommandLineArguments(parameter string) {
 	if g.typeSuffix == "" {
 		g.typeSuffix = ".relayified.graphql"
 	}
+	g.cursorType = buildCursorType(g.config.CursorType.Type, g.config.CursorType.Nullable)
 }
 
 func (g *Generator) BuildSchemas() {
@@ -104,7 +107,7 @@ func (g *Generator) connectify() {
 			}
 			edge := getObjectType(fd.Objects, desc.Name+"Edge")
 			if edge == nil {
-				edge = buildEdgeObjectType(desc)
+				edge = buildEdgeObjectType(desc, g.cursorType)
 				fd.Objects = append(fd.Objects, edge)
 			}
 			connection := getObjectType(fd.Objects, desc.Name+"Connection")
@@ -213,7 +216,32 @@ func buildNodeInterface() *graphqlc.InterfaceTypeDefinitionDescriptorProto {
 	}
 }
 
-func buildEdgeObjectType(desc *graphqlc.ObjectTypeDefinitionDescriptorProto) *graphqlc.ObjectTypeDefinitionDescriptorProto {
+func buildCursorType(typ string, nullable bool) *graphqlc.TypeDescriptorProto {
+	switch nullable {
+	case false:
+		return &graphqlc.TypeDescriptorProto{
+			Type: &graphqlc.TypeDescriptorProto_NonNullType{
+				NonNullType: &graphqlc.NonNullTypeDescriptorProto{
+					Type: &graphqlc.NonNullTypeDescriptorProto_NamedType{
+						NamedType: &graphqlc.NamedTypeDescriptorProto{
+							Name: typ,
+						},
+					},
+				},
+			},
+		}
+	default:
+		return &graphqlc.TypeDescriptorProto{
+			Type: &graphqlc.TypeDescriptorProto_NamedType{
+				NamedType: &graphqlc.NamedTypeDescriptorProto{
+					Name: typ,
+				},
+			},
+		}
+	}
+}
+
+func buildEdgeObjectType(desc *graphqlc.ObjectTypeDefinitionDescriptorProto, cursorType *graphqlc.TypeDescriptorProto) *graphqlc.ObjectTypeDefinitionDescriptorProto {
 	return &graphqlc.ObjectTypeDefinitionDescriptorProto{
 		Name: desc.Name + "Edge",
 		Fields: []*graphqlc.FieldDefinitionDescriptorProto{
@@ -229,17 +257,7 @@ func buildEdgeObjectType(desc *graphqlc.ObjectTypeDefinitionDescriptorProto) *gr
 			},
 			&graphqlc.FieldDefinitionDescriptorProto{
 				Name: "cursor",
-				Type: &graphqlc.TypeDescriptorProto{
-					Type: &graphqlc.TypeDescriptorProto_NonNullType{
-						NonNullType: &graphqlc.NonNullTypeDescriptorProto{
-							Type: &graphqlc.NonNullTypeDescriptorProto_NamedType{
-								NamedType: &graphqlc.NamedTypeDescriptorProto{
-									Name: "String",
-								},
-							},
-						},
-					},
-				},
+				Type: cursorType,
 			},
 		},
 	}

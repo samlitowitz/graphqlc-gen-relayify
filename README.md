@@ -51,6 +51,12 @@ Install [graphqlc](https://github.com/samlitowitz/graphqlc).
 # relayify.yaml
 # the file can be named anything, you just have to specify it to the config parameter!
 
+# Specify the cursor type.
+# See the Relay specification (https://facebook.github.io/relay/graphql/connections.htm#sec-Cursor) 
+cursor_type: 
+  type: String
+  nullable: false
+
 # Create PageInfo type if it does not exist and connectify is not empty
 # Create <TYPE>Connection and <TYPE>Edge types if they do not exist
 connectify:
@@ -70,13 +76,7 @@ nodeify:
 `graphqlc --relayify_out=config=relayify.yml:. schema.graphql`
 
 
-# Going forward
-  * Cursor type specification
-  
-  ```yaml
-  cursor_type: String
-  ```
-  
+# Going forward 
   * Add or overwrite type fields with connection types
   
   ```yaml
