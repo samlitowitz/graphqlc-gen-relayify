@@ -1,15 +1,15 @@
 package main
 
 import (
+	"github.com/samlitowitz/graphqlc-gen-relayify/pkg/graphqlc/relayify"
 	"io/ioutil"
 	"os"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/samlitowitz/graphqlc-gen-relayify/internal/pkg/graphqlc-gen-relayify/generator"
 )
 
 func main() {
-	g := generator.New()
+	g := relayify.New()
 
 	data, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
@@ -26,7 +26,7 @@ func main() {
 
 	g.CommandLineArguments(g.Request.Parameter)
 	g.BuildSchemas()
-	g.GenerateAllFiles()
+	g.GenerateSchemaFiles()
 
 	data, err = proto.Marshal(g.Response)
 	if err != nil {

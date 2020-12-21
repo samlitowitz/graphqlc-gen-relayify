@@ -1,0 +1,24 @@
+{
+  "cursorType": {
+    "type": "String",
+    "nullable": false
+  },
+  "connectify": [{
+    "type": "Todo",
+    "fields": [
+      {
+        "type": "User",
+        "field": "todos"
+      },
+      {
+        "type": "MyQuery",
+        "field": "todos",
+        "overwrite": true
+      }
+    ]
+  }],
+  "nodeify": [
+    "Todo",
+    "User"
+  ]
+}

@@ -1,22 +1,15 @@
-package generator
+package relayify
 
 import (
 	"fmt"
-	"path"
-	"strings"
-
+	echo "github.com/samlitowitz/graphqlc-gen-echo/pkg/graphqlc/echo"
 	"github.com/samlitowitz/graphqlc/pkg/graphqlc"
-
-	"github.com/samlitowitz/graphqlc-gen-relayify/pkg/graphqlc-gen-relayify/generator"
-	echo "github.com/samlitowitz/graphqlc/pkg/echo/generator"
 )
 
 type Generator struct {
 	*echo.Generator
 
-	Param map[string]string // Command-line parameters
-
-	config          *generator.Config
+	config          *Config
 	typeSuffix      string // Append type suffix for rename
 	genFileNames    map[string]bool
 	connectifyTypes map[string]bool
@@ -28,39 +21,25 @@ type Generator struct {
 func New() *Generator {
 	g := new(Generator)
 	g.Generator = echo.New()
-	g.Generator.FnRenameFile = g.graphqlRelayifyFileName
+	g.LogPrefix = "graphqlc-gen-relayify"
 	return g
 }
 
 func (g *Generator) CommandLineArguments(parameter string) {
-	g.Param = make(map[string]string)
-	for _, p := range strings.Split(parameter, ",") {
-		if i := strings.Index(p, "="); i < 0 {
-			g.Param[p] = ""
-		} else {
-			g.Param[p[0:i]] = p[i+1:]
-		}
-	}
+	g.Generator.CommandLineArguments(parameter)
 
 	for k, v := range g.Param {
 		switch k {
 		case "config":
-			config, err := generator.LoadConfig(v)
+			config, err := LoadConfig(v)
 			if err != nil {
 				g.Error(err)
 			}
 			g.config = config
-		case "typeSuffix":
-			if v != "" {
-				g.typeSuffix = v
-			}
 		}
 	}
 	if g.config == nil {
 		g.Fail("a configuration must be provided")
-	}
-	if g.typeSuffix == "" {
-		g.typeSuffix = ".relayified.graphql"
 	}
 	g.cursorType = buildCursorType(g.config.CursorType.Type, g.config.CursorType.Nullable)
 }
@@ -457,13 +436,4 @@ func wrapExistingQueryType(fd *graphqlc.FileDescriptorGraphql) {
 			return
 		}
 	}
-}
-
-func (g *Generator) graphqlRelayifyFileName(name string) string {
-	if ext := path.Ext(name); ext == ".graphql" {
-		name = name[:len(name)-len(ext)]
-	}
-	name += g.typeSuffix
-
-	return name
 }
