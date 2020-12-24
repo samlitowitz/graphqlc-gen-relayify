@@ -1,0 +1,37 @@
+schema {
+    query: MyQuery
+    mutation: MyMutation
+}
+
+type MyQuery {
+    items: [Item!]!
+}
+
+type MyMutation {
+    addItem(input: AddItemInput!): Cart!
+    removeItem(input: RemoveItemInput!): Cart!
+}
+
+type User {
+    name: String!
+}
+
+type Cart {
+    user: User!
+    items: [Item!]!
+}
+
+type Item {
+    name: String!
+    description: String!
+}
+
+input AddItemInput {
+    cartID: ID!
+    itemID: ID!
+}
+
+input RemoveItemInput {
+    cardID: ID!
+    itemID: ID!
+}

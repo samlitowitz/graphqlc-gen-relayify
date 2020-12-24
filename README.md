@@ -30,15 +30,11 @@ Create <TYPE>Connection and <TYPE>Edge types if they do not exist
 {
   "connectify": [
     {
-      "type": "Todo",
+      "type": "Item",
       "fields": [
         {
-          "type": "User",
-          "field": "todos"
-        },
-        {
           "type": "MyQuery",
-          "field": "todos",
+          "field": "items",
           "overwrite": true
         }
       ]
@@ -52,8 +48,9 @@ Implement the Node interface for each type specified in nodeify
 ```json
 {
   "nodeify": [
-    "Todo",
-    "User"
+    "User",
+    "Cart",
+    "Item"
   ]
 }
 ```

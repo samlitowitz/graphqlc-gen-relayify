@@ -4,21 +4,18 @@
     "nullable": false
   },
   "connectify": [{
-    "type": "Todo",
+    "type": "Item",
     "fields": [
       {
-        "type": "User",
-        "field": "todos"
-      },
-      {
         "type": "MyQuery",
-        "field": "todos",
+        "field": "items",
         "overwrite": true
       }
     ]
   }],
   "nodeify": [
-    "Todo",
-    "User"
+    "User",
+    "Cart",
+    "Item"
   ]
 }
