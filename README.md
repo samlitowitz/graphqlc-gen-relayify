@@ -3,41 +3,7 @@
 This is a code generator designed to work with [graphqlc](https://github.com/samlitowitz/graphqlc).
 
 Generate a GraphQL schema from a GraphQL schema with added Relay Node interfaces and Connection types for the specified types.
-See the [examples/](https://github.com/samlitowitz/graphqlc-gen-relayify/tree/master/examples) directory for more... examples.
-
-```graphql
-# input.graphql
-type Query {}
-type AType {}
-```
-```graphql
-# output.graphql
-type Query {
-    node(id: ID): Node
-}
-
-type AType implements Node {
-    id: ID!
-}
-
-type PageInfo {
-  hasPreviousPage: Boolean!
-  hasNextPage: Boolean!
-}
-
-type ATypeEdge {
-  node: AType
-  cursor: String!
-}
-
-type ATypeConnection {
-  edge: [ATypeEdge]
-  PageInfo: PageInfo!
-}
-interface Node {
-    id: ID!
-}
-```
+See the [examples/](examples/) directory for more... examples.
 
 # Installation
 Install [graphqlc](https://github.com/samlitowitz/graphqlc).

@@ -1,3 +1,2 @@
-//go:generate graphqlc --relayify_out=config=relayify.json:. schema.graphql
-//go:generate graphqlc --relayify_out=config=relayify.json,typeSuffix=.test.graphql:. schema.graphql
+//go:generate graphqlc --relayify_out=config=relayify.json,suffix=.relay.graphql:. schema.graphql
 package todo
