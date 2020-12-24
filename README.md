@@ -1,4 +1,6 @@
 # graphqlc-gen-relayify
+[![Go Report Card](https://goreportcard.com/badge/github.com/samlitowitz/graphqlc)](https://goreportcard.com/report/github.com/samlitowitz/graphqlc)
+[![Go Reference](https://pkg.go.dev/badge/samlitowitz/graphqlc-gen-relayify.svg)](https://pkg.go.dev/samlitowitz/graphqlc-gen-relayify)
 
 This is a code generator designed to work with [graphqlc](https://github.com/samlitowitz/graphqlc).
 
