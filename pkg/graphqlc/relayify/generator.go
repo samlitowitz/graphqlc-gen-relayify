@@ -11,7 +11,7 @@ type Generator struct {
 
 	config          *Config
 	typeSuffix      string // Append type suffix for rename
-	genFileNames    map[string]bool
+	genFiles        map[string]bool
 	connectifyTypes map[string]bool
 	nodeifyTypes    map[string]bool
 
@@ -45,9 +45,9 @@ func (g *Generator) CommandLineArguments(parameter string) {
 }
 
 func (g *Generator) BuildSchemas() {
-	g.genFileNames = make(map[string]bool)
+	g.genFiles = make(map[string]bool)
 	for _, n := range g.Request.FileToGenerate {
-		g.genFileNames[n] = true
+		g.genFiles[n] = true
 	}
 
 	g.connectifyTypes = make(map[string]bool)
@@ -71,7 +71,7 @@ func (g *Generator) BuildSchemas() {
 
 func (g *Generator) connectify() {
 	for _, fd := range g.Request.GraphqlFile {
-		if _, ok := g.genFileNames[fd.Name]; !ok {
+		if _, ok := g.genFiles[fd.Name]; !ok {
 			continue
 		}
 		// Create PageInfo type if it does not exist
@@ -119,7 +119,7 @@ func (g *Generator) connectify() {
 
 func (g *Generator) nodeify() {
 	for _, fd := range g.Request.GraphqlFile {
-		if _, ok := g.genFileNames[fd.Name]; !ok {
+		if _, ok := g.genFiles[fd.Name]; !ok {
 			continue
 		}
 		// Create Node interface if it does not exist
