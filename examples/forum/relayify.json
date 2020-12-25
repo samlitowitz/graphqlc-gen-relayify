@@ -1,0 +1,65 @@
+{
+  "cursorType": {
+    "type": "String",
+    "nullable": false
+  },
+  "connectify": [
+    {
+      "type": "User",
+      "fields": [
+        {
+          "type": "MyQuery",
+          "field": "users",
+          "overwrite": true
+        }
+      ]
+    },
+    {
+      "type": "Topic",
+      "fields": [
+        {
+          "type": "MyQuery",
+          "field": "topics",
+          "overwrite": true
+        }
+      ]
+    },
+    {
+      "type": "Post",
+      "fields": [
+        {
+          "type": "MyQuery",
+          "field": "newestPosts",
+          "overwrite": true
+        },
+        {
+          "type": "User",
+          "field": "posts",
+          "overwrite": true
+        }
+      ]
+    },
+    {
+      "type": "Reply",
+      "fields": [
+        {
+          "type": "Post",
+          "field": "replies",
+          "overwrite": true
+        },
+        {
+          "type": "Reply",
+          "field": "replies",
+          "overwrite": true
+        }
+      ]
+    }
+  ],
+  "nodeify": [
+    "User",
+    "Topic",
+    "Post",
+    "Reply",
+    "Content"
+  ]
+}

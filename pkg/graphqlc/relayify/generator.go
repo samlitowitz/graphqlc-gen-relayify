@@ -2,7 +2,7 @@ package relayify
 
 import (
 	"fmt"
-	echo "github.com/samlitowitz/graphqlc-gen-echo/pkg/graphqlc/echo"
+	"github.com/samlitowitz/graphqlc-gen-echo/pkg/graphqlc/echo"
 	"github.com/samlitowitz/graphqlc/pkg/graphqlc"
 )
 
@@ -80,22 +80,9 @@ func (g *Generator) connectify() {
 			pageInfo = buildPageInfoObjectType()
 			fd.Objects = append(fd.Objects, pageInfo)
 		}
-		// Create *Connection and *Edge for specified types
-		for _, desc := range fd.Objects {
-			if _, ok := g.connectifyTypes[desc.Name]; !ok {
-				continue
-			}
-			edge := getObjectType(fd.Objects, desc.Name+"Edge")
-			if edge == nil {
-				edge = buildEdgeObjectType(desc, g.cursorType)
-				fd.Objects = append(fd.Objects, edge)
-			}
-			connection := getObjectType(fd.Objects, desc.Name+"Connection")
-			if connection == nil {
-				connection = buildConnectionObjectType(desc, edge)
-				fd.Objects = append(fd.Objects, connection)
-			}
-		}
+		// Create *Connection and *Edge for specified objects types
+		fd.Objects = append(fd.Objects, g.connectifyObjects(fd.Objects)...)
+
 		// Add/overwrite connection fields
 		for _, typ := range g.config.Connectify {
 			for _, field := range typ.Fields {
@@ -115,6 +102,26 @@ func (g *Generator) connectify() {
 			}
 		}
 	}
+}
+
+func (g *Generator) connectifyObjects(objDefs []*graphqlc.ObjectTypeDefinitionDescriptorProto) []*graphqlc.ObjectTypeDefinitionDescriptorProto {
+	output := make([]*graphqlc.ObjectTypeDefinitionDescriptorProto, 0)
+	for _, desc := range objDefs {
+		if _, ok := g.connectifyTypes[desc.Name]; !ok {
+			continue
+		}
+		edge := getObjectType(objDefs, desc.Name+"Edge")
+		if edge == nil {
+			edge = buildEdgeObjectType(desc, g.cursorType)
+			output = append(output, edge)
+		}
+		connection := getObjectType(objDefs, desc.Name+"Connection")
+		if connection == nil {
+			connection = buildConnectionObjectType(desc, edge)
+			output = append(output, connection)
+		}
+	}
+	return output
 }
 
 func (g *Generator) nodeify() {

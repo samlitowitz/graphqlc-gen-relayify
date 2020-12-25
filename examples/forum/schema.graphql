@@ -1,0 +1,46 @@
+schema {
+    query: MyQuery
+}
+
+type MyQuery {
+    users: [User!]!
+    topics: [Topic!]!
+    newestPosts: [Post!]!
+    newestContent: [Content!]!
+}
+
+type User {
+    posts: [Post!]!
+    role: UserRole!
+}
+
+type Topic {
+    name: String!
+    author: User!
+    createdAt: DateTime!
+}
+
+type Post {
+    author: User!
+    createdAt: DateTime!
+    replies: [Reply!]!
+    title: String!
+    message: String!
+}
+
+type Reply {
+    auther: User!
+    createdAt: DateTime!
+    replies: [Reply!]!
+    message: String!
+}
+
+union Content = Post | Reply
+
+enum UserRole {
+    ADMINISTRATOR
+    MODERATOR
+    MEMBER
+}
+
+scalar DateTime

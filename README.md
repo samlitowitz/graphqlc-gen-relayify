@@ -60,4 +60,10 @@ Implement the Node interface for each type specified in nodeify
   * suffix, optional, default = .echo.graphql, suffix for output file
 
 `graphqlc --relayify_out=config=relayify.json:. schema.graphql`
-  
+
+# To Do
+1. Add connection support
+   1. Scalar
+   1. Enum
+   1. Interface
+   1. Union
